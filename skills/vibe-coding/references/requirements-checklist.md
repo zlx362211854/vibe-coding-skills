@@ -3,6 +3,46 @@
 Ask in small groups. Don't dump all of this at once. Stop when you have enough
 to write the three docs with no major unknowns. Record answers as you go.
 
+## How to ask (read every time)
+
+- **Always enumerate options.** Every closed-set question must be presented as
+  numbered choices + "Other (specify)". No bare open prompts when a finite set
+  exists. Example BAD: "what framework do you want?" Example GOOD:
+  ```
+  Pick the front-end framework:
+    1. React + Vite
+    2. Next.js (SSR)
+    3. Vue 3 + Vite
+    4. SvelteKit
+    5. Other (specify)
+  ```
+- **Use the host's picker tool when available.** In Claude Code, call
+  `AskUserQuestion` for multi-choice (it renders a real picker UI). In Codex
+  CLI / generic CLIs that lack a picker, fall back to numbered text — same
+  enumerated discipline.
+- **Never assume.** If the user said "app" without saying which kind, you do
+  NOT know if it's web / iOS / Android / 小程序 / desktop. Ask first.
+
+## 0. Platform / form-factor  (ALWAYS ASK FIRST)
+
+What kind of "app" are we building? Required pick — do NOT skip, do NOT default
+to web. Present these (adapt the list to context, but always enumerate):
+
+  1. Web app (browser)
+  2. Native iOS (Swift / SwiftUI)
+  3. Native Android (Kotlin)
+  4. Cross-platform mobile (React Native / Flutter / Expo)
+  5. WeChat / Alipay mini-program (小程序)
+  6. Desktop app (Electron / Tauri / native)
+  7. CLI / terminal tool
+  8. Browser extension
+  9. Backend / API service only (no UI)
+  10. Other (specify)
+
+All downstream architecture and tech-selection questions MUST be filtered by
+this answer (e.g. don't ask about Vercel for a native iOS app; don't ask about
+TailwindCSS for a CLI).
+
 ## A. Business / Product
 - Who is the target user? What problem does this solve for them?
 - The 1–3 core scenarios the MVP MUST support.

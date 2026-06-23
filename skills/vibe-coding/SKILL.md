@@ -68,6 +68,33 @@ state for the first time.
 Goal: produce three documents. Ask questions in small groups, not all at once.
 Use the checklist in `references/requirements-checklist.md`. Cover:
 
+### Interaction rules (apply to EVERY question in this phase)
+
+- **Never assume the platform.** Before any other architecture question, the
+  FIRST question MUST be the platform/form-factor pick (Web app / Native iOS /
+  Native Android / Cross-platform mobile / Mini-program 小程序 / Desktop / CLI /
+  Browser extension / Other). Do NOT default to "web app" just because the user
+  said "app" — in Chinese contexts "app" routinely means a native mobile app or
+  a WeChat mini-program. If the host CLI exposes a structured picker tool (e.g.
+  Claude Code's `AskUserQuestion`), use it; otherwise present numbered options
+  in text and tell the user to reply with the number.
+- **Always present enumerated options, not open prompts.** For every choice the
+  user has to make (framework, DB, auth provider, deploy target, styling, etc.),
+  list 2–5 numbered candidates plus an "Other (specify)" escape hatch. Never
+  output a bare question that invites free-form prose when a multiple-choice
+  form would do. The only exception: free-text fields that genuinely have no
+  finite option set (e.g. project name, target user description).
+- **If the host has a picker tool, use it.** Inside Claude Code, prefer
+  `AskUserQuestion` (multi-select + Other) over text. Inside Codex CLI or any
+  other tool that lacks a picker, fall back to the numbered-text protocol above
+  — but keep the same enumerated-choice discipline.
+- **One platform pick gates the rest.** After the platform is chosen, all later
+  questions (framework, deployment, auth, storage) must be scoped to that
+  platform. Do not ask "Vercel or Netlify?" for a native iOS app.
+
+### Coverage
+
+- **Platform / form-factor** (MUST be question #1, see Interaction rules).
 - **Business**: target users, core scenarios, MVP scope, explicit non-goals.
 - **Architecture**: monolith vs split, deploy target, need for DB / auth /
   realtime / background jobs.
