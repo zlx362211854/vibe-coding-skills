@@ -84,12 +84,25 @@ Use the checklist in `references/requirements-checklist.md`. Cover:
   that invites free-form prose when a multiple-choice form would do. The only
   exception: free-text fields that genuinely have no finite option set (e.g.
   project name, target user description).
+- **Before asking ANY question, check whether the structured picker tool is
+  available in the current session.** If it is NOT available (common case:
+  Codex App is in `Default` mode where `request_user_input` is gated off),
+  STOP and tell the user in one line:
+
+  > "结构化选项需要 **Plan 模式**(Codex App 右上角切换)。切到 Plan 模式后
+  >  重新发我一次刚才的需求,我会用弹窗收集答案。要继续用编号文本也可以,
+  >  回复 `继续` 即可。"
+
+  Wait for the user to either switch modes (you'll then see the tool become
+  available on next turn) or explicitly opt into text fallback. Do not silently
+  degrade — the user must see why the UX dropped to plain text.
+
 - **Use the host's structured-picker tool. Do NOT fall back to plain text if
   the tool exists.** Detection order:
   - **Claude Code** → call `AskUserQuestion` (supports multi-select; client
     auto-adds "Other").
-  - **Codex CLI** → call `request_user_input`. Schema constraints (enforced by
-    Codex, will reject on violation):
+  - **Codex CLI / Codex App (Plan mode)** → call `request_user_input`. Schema
+    constraints (enforced by Codex, will reject on violation):
     - `questions`: 1–3 items max per call.
     - Each question needs `id` (snake_case), `header` (≤12 chars),
       `question` (one sentence), `options` (2–3 items).
