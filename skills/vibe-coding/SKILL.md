@@ -37,6 +37,32 @@ phases, persisting everything to `.vibe/` so it is fully resumable.
 5. **Contract-first.** The first tasks must define shared types / API schemas /
    interfaces. Implementation tasks depend on them. This is what makes safe
    parallelism possible.
+6. **No implementation action is allowed until the gate files exist on disk.**
+   Implementation actions include: `Bash` commands that install/build/run
+   anything outside `.vibe/`, `Write`/`Edit` to any file outside `.vibe/`,
+   `flutter create` / `npm init` / `npx create-*` / package installs / git init
+   in a non-empty dir / any scaffolding command. Before any such action, you
+   MUST verify ALL of these files exist on disk:
+     - `.vibe/STATE.md` (phase ≥ 3)
+     - `.vibe/requirements.md`
+     - `.vibe/architecture.md`
+     - `.vibe/conventions.md`
+     - `.vibe/tasks/index.json` with at least one task
+     - `.vibe/tasks/T###.md` for each task in the index
+   If any are missing, STOP and go back to the phase that produces them. Do
+   NOT proceed on "implied approval" or because the user sounded ready.
+7. **Codex Plan mode's "Yes, implement this plan" is NOT a PHASE 1 or PHASE 2
+   gate approval.** Codex App's Plan mode shows its own internal plan summary
+   and asks the user to confirm — that confirmation only means "the plan you
+   verbally described is acceptable". It does NOT excuse you from:
+     (a) actually writing the three `.vibe/*.md` files,
+     (b) re-presenting their on-disk contents and pausing for explicit
+         PHASE 1 approval,
+     (c) writing PHASE 2 task tickets to `.vibe/tasks/`, and
+     (d) pausing again for explicit PHASE 2 approval.
+   Treat the Plan-mode confirmation as one piece of input feeding PHASE 1,
+   nothing more. The two HUMAN GATEs in this skill are separate, explicit, and
+   require fresh user messages after the files are on disk.
 
 ---
 
@@ -135,8 +161,20 @@ Write results to:
 - `.vibe/architecture.md`  (architecture + tech selection + rationale)
 - `.vibe/conventions.md`   (code style)
 
-**GATE:** Present a concise summary and ask the user to confirm or correct
-before PHASE 2. Update `.vibe/STATE.md` to `phase: 2` only after approval.
+**Order of operations (do all of these, in order, before PHASE 2):**
+  1. Write the three files above to disk now. Do NOT batch them into "I will
+     write these once you approve" — write first, ask second.
+  2. Also create `.vibe/STATE.md` with `phase: 1` and a short cursor.
+  3. Show the user a concise summary of the on-disk contents (a few bullets
+     per file is fine) and explicitly say: "三份文档已写入 `.vibe/`,请确认或
+     修改。批准后我才会进入 PHASE 2 任务拆分,**这一步还不会写任何代码**。"
+  4. WAIT for a fresh user message that approves PHASE 1. A Codex Plan-mode
+     plan acceptance from earlier in the conversation does NOT count.
+  5. Only after explicit approval, update `.vibe/STATE.md` to `phase: 2` and
+     proceed to PHASE 2.
+
+**GATE (PHASE 1):** approval is required and is separate from any Plan-mode
+plan confirmation Codex App may have shown.
 
 ---
 
@@ -157,13 +195,34 @@ Decompose the requirements into tickets. Use the template in
 Write each task as `.vibe/tasks/T###.md` and register all of them in
 `.vibe/tasks/index.json` with status `todo`.
 
-**GATE:** Show the task list (id, title, layer, deps) and let the user review /
-re-order / add / remove before building. Update `.vibe/STATE.md` to `phase: 3`
-only after approval.
+**Order of operations (do all of these, in order, before PHASE 3):**
+  1. Write `.vibe/tasks/index.json` and one `.vibe/tasks/T###.md` per task to
+     disk now. Do not "draft them in chat" first.
+  2. Show the user the task list (id, title, layer, deps) and explicitly say:
+     "任务清单已写入 `.vibe/tasks/`。请审阅/重排序/增删,批准后我才会动手实
+     现。**这一步还不会跑 `flutter create`、`npm install` 或任何脚手架命令。**"
+  3. WAIT for a fresh user message approving the task list.
+  4. Only then update `.vibe/STATE.md` to `phase: 3` and start PHASE 3.
+
+**GATE (PHASE 2):** approval is required. Re-using a Plan-mode confirmation or
+treating PHASE 1 approval as covering PHASE 2 is a hard rule violation.
 
 ---
 
 ## PHASE 3 — Development loop  (parallel, unattended-capable)
+
+**Entry check — refuse to start PHASE 3 if any of these are false:**
+  - `.vibe/STATE.md` exists and its `phase` field is `3`.
+  - `.vibe/requirements.md`, `.vibe/architecture.md`, `.vibe/conventions.md`
+    all exist and are non-empty.
+  - `.vibe/tasks/index.json` exists with at least one task entry.
+  - Every task referenced in the index has its own `.vibe/tasks/T###.md` file.
+  - The user has, in a fresh message after the task list was written to disk,
+    explicitly approved PHASE 2.
+
+If any check fails, STOP and return to the phase that produces the missing
+artifact. Do NOT run any installer, scaffolder, or build command before all
+checks pass.
 
 Repeat until no task is in a runnable state:
 
