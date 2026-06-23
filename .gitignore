@@ -1,0 +1,21 @@
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Node (if you add tooling later)
+node_modules/
+npm-debug.log*
+
+# Secrets — never commit these
+.env
+.env.*
+*.key
+*.pem
+
+# NOTE: a project's own .vibe/ directory SHOULD be committed (it is the project
+# state and resume source of truth). This repo is the *skill* itself, so it has
+# no live .vibe/ to ignore — only the template under assets/.vibe/, which is
+# tracked on purpose.
