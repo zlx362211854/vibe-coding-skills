@@ -80,14 +80,28 @@ Use the checklist in `references/requirements-checklist.md`. Cover:
   in text and tell the user to reply with the number.
 - **Always present enumerated options, not open prompts.** For every choice the
   user has to make (framework, DB, auth provider, deploy target, styling, etc.),
-  list 2–5 numbered candidates plus an "Other (specify)" escape hatch. Never
-  output a bare question that invites free-form prose when a multiple-choice
-  form would do. The only exception: free-text fields that genuinely have no
-  finite option set (e.g. project name, target user description).
-- **If the host has a picker tool, use it.** Inside Claude Code, prefer
-  `AskUserQuestion` (multi-select + Other) over text. Inside Codex CLI or any
-  other tool that lacks a picker, fall back to the numbered-text protocol above
-  — but keep the same enumerated-choice discipline.
+  list 2–3 candidates plus a recommended default. Never output a bare question
+  that invites free-form prose when a multiple-choice form would do. The only
+  exception: free-text fields that genuinely have no finite option set (e.g.
+  project name, target user description).
+- **Use the host's structured-picker tool. Do NOT fall back to plain text if
+  the tool exists.** Detection order:
+  - **Claude Code** → call `AskUserQuestion` (supports multi-select; client
+    auto-adds "Other").
+  - **Codex CLI** → call `request_user_input`. Schema constraints (enforced by
+    Codex, will reject on violation):
+    - `questions`: 1–3 items max per call.
+    - Each question needs `id` (snake_case), `header` (≤12 chars),
+      `question` (one sentence), `options` (2–3 items).
+    - Each option needs `label` (1–5 words) + `description` (one sentence on
+      impact/tradeoff). Put the recommended option first and suffix its label
+      with `(Recommended)`.
+    - Do NOT add an "Other" option yourself — Codex appends a free-form
+      "Other" automatically.
+    - Set `autoResolutionMs` only for non-blocking questions where best-guess
+      defaults are acceptable; omit it for must-answer questions.
+  - **Any other CLI** that lacks both tools → fall back to numbered text
+    ("reply with the number"), keeping the same enumerated discipline.
 - **One platform pick gates the rest.** After the platform is chosen, all later
   questions (framework, deployment, auth, storage) must be scoped to that
   platform. Do not ask "Vercel or Netlify?" for a native iOS app.

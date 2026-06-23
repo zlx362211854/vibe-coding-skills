@@ -16,10 +16,14 @@ to write the three docs with no major unknowns. Record answers as you go.
     4. SvelteKit
     5. Other (specify)
   ```
-- **Use the host's picker tool when available.** In Claude Code, call
-  `AskUserQuestion` for multi-choice (it renders a real picker UI). In Codex
-  CLI / generic CLIs that lack a picker, fall back to numbered text — same
-  enumerated discipline.
+- **Use the host's structured-picker tool. This is mandatory when available.**
+  - Claude Code → `AskUserQuestion` (multi-select + auto Other).
+  - Codex CLI   → `request_user_input` (1–3 questions per call, each with 2–3
+    options, first option suffixed `(Recommended)`; client auto-appends Other —
+    do not add it yourself).
+  - Other CLIs without a picker → numbered text fallback ("reply with the
+    number"), same enumerated discipline.
+  Plain-text questions are a LAST RESORT, not the default.
 - **Never assume.** If the user said "app" without saying which kind, you do
   NOT know if it's web / iOS / Android / 小程序 / desktop. Ask first.
 
