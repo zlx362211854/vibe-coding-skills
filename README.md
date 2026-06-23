@@ -6,24 +6,32 @@ implementation with verification → final acceptance. All progress is persisted
 to a `.vibe/` directory, so work survives interruption and any agent can resume
 seamlessly.
 
-## Why one SKILL.md works on both Codex and Claude
-`SKILL.md` is now a cross-tool standard. The *same* file is read natively by
-Claude Code, Codex CLI, and many other agents — the only difference is which
-directory each tool scans. `install.sh` copies (or symlinks) this folder into
-all of them.
+Works in **Claude Code** (native plugin) and **Codex CLI** (one-line curl).
 
-> Note: this works in the **CLI** tools (Codex CLI, Claude Code). Graphical chat
-> apps (phone/web) have no filesystem, so they can't persist `.vibe/`. See
-> `references/resume-in-chat.md` for how to operate there.
+---
 
 ## Install
+
+### Claude Code — native plugin
+```
+/plugin install zlx362211854/vibe-coding-skills
+```
+That's it. The skill registers globally; open any new repo and say
+*"start a new vibe-coding project"*.
+
+### Codex CLI — one-line curl
 ```bash
-cd vibe-coding
-chmod +x scripts/install.sh
-./scripts/install.sh all          # claude + codex + universal fallback
-# or: ./scripts/install.sh claude
-#     ./scripts/install.sh codex
-#     ./scripts/install.sh all link   # symlink instead of copy (auto-updates)
+curl -fsSL https://raw.githubusercontent.com/zlx362211854/vibe-coding-skills/main/scripts/remote-install.sh | bash -s -- codex link
+```
+- `codex` installs only to `~/.codex/skills/`.
+- `link` uses a symlink so re-running `git -C ~/.cache/vibe-coding-skills pull` auto-updates the skill.
+- Drop the args entirely (`| bash`) to install for Claude + Codex + the generic `~/.agents/` fallback at once.
+
+### Manual / from a clone
+```bash
+git clone https://github.com/zlx362211854/vibe-coding-skills.git
+cd vibe-coding-skills
+./scripts/install.sh all link    # or: claude | codex | agents
 ```
 
 Targets:
@@ -31,35 +39,49 @@ Targets:
 - Codex CLI   → `~/.codex/skills/vibe-coding/`
 - Universal   → `~/.agents/skills/vibe-coding/`
 
-## Start a project
-One command scaffolds the state starter into your project:
-```bash
-./scripts/init.sh /path/to/project    # or run with no arg to use the cwd
-```
-(or copy by hand: `cp -R assets/.vibe /path/to/project/.vibe && cp assets/AGENTS.md /path/to/project/AGENTS.md`)
+---
 
-Open the project in Claude Code or Codex CLI and say **"start a new vibe-coding
-project"**. To pick up later, say **"resume my vibe-coding project"** — the skill
-reads `.vibe/STATE.md`, reconciles unfinished tasks, and continues.
+## Start a project
+
+Just open any directory in Claude Code / Codex CLI and say:
+
+> **"start a new vibe-coding project"**
+
+The skill scaffolds `.vibe/` automatically on first run. To pick up later:
+
+> **"resume my vibe-coding project"**
+
+— it reads `.vibe/STATE.md`, reconciles unfinished tasks, and continues.
+
+*(Optional: `./scripts/init.sh /path/to/project` pre-seeds `.vibe/` and
+`AGENTS.md` by hand. Not required — the skill creates them itself.)*
+
+> Graphical chat apps (phone/web) can't persist `.vibe/`. See
+> `skills/vibe-coding/references/resume-in-chat.md` for the workaround.
+
+---
 
 ## What's inside
 ```
-vibe-coding/
-├── SKILL.md                          # the orchestrator (six-phase state machine)
-├── README.md
+vibe-coding-skills/
+├── .claude-plugin/
+│   └── plugin.json                 # Claude Code plugin manifest
+├── skills/
+│   └── vibe-coding/
+│       ├── SKILL.md                # the orchestrator (six-phase state machine)
+│       ├── references/
+│       │   ├── state-spec.md
+│       │   ├── requirements-checklist.md
+│       │   ├── parallel-dispatch.md
+│       │   └── resume-in-chat.md
+│       └── assets/
+│           ├── AGENTS.md
+│           └── .vibe/              # project state starter
 ├── scripts/
-│   ├── install.sh                    # cross-tool installer
-│   └── init.sh                       # scaffold .vibe + AGENTS.md into a project
-├── references/
-│   ├── state-spec.md                 # exact .vibe/ file formats
-│   ├── requirements-checklist.md     # PHASE 1 question bank
-│   ├── parallel-dispatch.md          # PHASE 3 parallelism + sub-agent briefs
-│   └── resume-in-chat.md             # graphical-app fallback
-└── assets/
-    ├── AGENTS.md                     # drop into each new project root
-    └── .vibe/                        # project state starter (seed files)
-        ├── STATE.md
-        └── tasks/{index.json,_TEMPLATE.md}
+│   ├── install.sh                  # local installer
+│   ├── remote-install.sh           # curl one-liner backend
+│   └── init.sh                     # optional .vibe/ scaffolder
+└── README.md
 ```
 
 ## Honest limits

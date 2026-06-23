@@ -1,0 +1,13 @@
+{
+  "name": "vibe-coding",
+  "version": "0.1.0",
+  "description": "End-to-end orchestrator: idea -> requirements -> task tickets -> parallel implementation with verification -> acceptance. State persists to .vibe/ so work is fully resumable.",
+  "author": {
+    "name": "linkzhao",
+    "email": "linkzhao@aaxis.io"
+  },
+  "homepage": "https://github.com/zlx362211854/vibe-coding-skills",
+  "repository": "https://github.com/zlx362211854/vibe-coding-skills",
+  "license": "MIT",
+  "keywords": ["vibe-coding", "orchestrator", "scaffolding", "mvp", "skill"]
+}

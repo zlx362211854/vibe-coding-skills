@@ -7,7 +7,7 @@
 #   ./scripts/init.sh /path/to/proj   # scaffold into a specific directory
 set -euo pipefail
 
-SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/skills/vibe-coding"
 TARGET="${1:-$(pwd)}"
 
 if [ ! -d "$TARGET" ]; then

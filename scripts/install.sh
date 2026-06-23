@@ -1,14 +1,27 @@
 #!/usr/bin/env bash
 # install.sh — install the vibe-coding skill for Claude Code and/or Codex CLI.
-# Same SKILL.md, two target directories. Run from inside the vibe-coding/ folder.
+# Same SKILL.md, multiple target directories.
+#
+# Usage (run from repo root or scripts/):
+#   ./scripts/install.sh                # all targets, copy mode
+#   ./scripts/install.sh all link       # symlink mode (auto-updates on git pull)
+#   ./scripts/install.sh claude         # only Claude Code
+#   ./scripts/install.sh codex          # only Codex CLI
+#   ./scripts/install.sh agents         # only universal ~/.agents fallback
 set -euo pipefail
 
 SKILL_NAME="vibe-coding"
-SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SKILL_SRC="$REPO_ROOT/skills/$SKILL_NAME"
+
+if [ ! -f "$SKILL_SRC/SKILL.md" ]; then
+  echo "error: cannot find $SKILL_SRC/SKILL.md" >&2
+  echo "       run this script from a clone of vibe-coding-skills" >&2
+  exit 1
+fi
 
 CLAUDE_DIR="$HOME/.claude/skills/$SKILL_NAME"
 CODEX_DIR="$HOME/.codex/skills/$SKILL_NAME"
-# Universal fallback path discovered by several CLI agents (Codex, Gemini, etc.)
 AGENTS_DIR="$HOME/.agents/skills/$SKILL_NAME"
 
 target="${1:-all}"   # all | claude | codex | agents
@@ -19,10 +32,10 @@ install_one () {
   mkdir -p "$(dirname "$dest")"
   rm -rf "$dest"
   if [ "$mode" = "link" ]; then
-    ln -s "$SRC_DIR" "$dest"
-    echo "linked  -> $dest"
+    ln -s "$SKILL_SRC" "$dest"
+    echo "linked  $SKILL_SRC -> $dest"
   else
-    cp -R "$SRC_DIR" "$dest"
+    cp -R "$SKILL_SRC" "$dest"
     echo "copied  -> $dest"
   fi
 }
@@ -37,15 +50,12 @@ case "$target" in
     install_one "$AGENTS_DIR"
     ;;
   *)
-    echo "usage: ./install.sh [all|claude|codex|agents] [copy|link]" >&2
+    echo "usage: ./scripts/install.sh [all|claude|codex|agents] [copy|link]" >&2
     exit 1
     ;;
 esac
 
 echo
-echo "Done. To start a new project, copy the project starter into your repo:"
-echo "  cp -R \"$SRC_DIR/assets/.vibe\"     /path/to/your/project/.vibe"
-echo "  cp    \"$SRC_DIR/assets/AGENTS.md\" /path/to/your/project/AGENTS.md"
-echo
-echo "Then open the project in Claude Code or Codex CLI and say:"
-echo "  \"start a new vibe-coding project\"   (or \"resume my vibe-coding project\")"
+echo "Done. Open any project in Claude Code or Codex CLI and say:"
+echo "  \"start a new vibe-coding project\""
+echo "The skill will scaffold .vibe/ in that project automatically."
