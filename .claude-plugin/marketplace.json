@@ -1,0 +1,16 @@
+{
+  "name": "vibe-coding-skills",
+  "owner": {
+    "name": "zlx362211854",
+    "url": "https://github.com/zlx362211854"
+  },
+  "plugins": [
+    {
+      "name": "vibe-coding",
+      "source": ".",
+      "description": "End-to-end orchestrator: idea -> requirements -> task tickets -> parallel implementation with verification -> acceptance. State persists to .vibe/ so work is fully resumable.",
+      "version": "0.1.0",
+      "homepage": "https://github.com/zlx362211854/vibe-coding-skills"
+    }
+  ]
+}
