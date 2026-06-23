@@ -23,9 +23,17 @@ That's it. The skill registers globally; open any new repo and say
 ```bash
 curl -fsSL https://raw.githubusercontent.com/zlx362211854/vibe-coding-skills/main/scripts/remote-install.sh | bash -s -- codex link
 ```
-- `codex` installs only to `~/.codex/skills/`.
+- `codex` installs to `~/.codex/skills/` **and** appends a `[[skills.config]]`
+  entry to `~/.codex/config.toml` (idempotent, makes a backup). Codex CLI
+  doesn't auto-scan the skills directory — it only loads skills explicitly
+  registered in `config.toml`, so this step is required.
 - `link` uses a symlink so re-running `git -C ~/.cache/vibe-coding-skills pull` auto-updates the skill.
 - Drop the args entirely (`| bash`) to install for Claude + Codex + the generic `~/.agents/` fallback at once.
+
+> **Codex App (desktop)** loads skills automatically via its own mechanism —
+> no curl install needed. Just make sure you're in **Plan mode** when the skill
+> asks structured questions; `Default` mode disables the picker tool and the
+> skill will fall back to numbered text.
 
 ### Manual / from a clone
 ```bash

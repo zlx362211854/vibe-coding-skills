@@ -40,13 +40,38 @@ install_one () {
   fi
 }
 
+# Codex CLI does NOT auto-scan ~/.codex/skills/. It loads skills only when they
+# are explicitly registered in ~/.codex/config.toml via [[skills.config]] blocks.
+# This function appends the registration if it isn't already there.
+register_codex_skill () {
+  local config="$HOME/.codex/config.toml"
+  local skill_path="$CODEX_DIR/SKILL.md"
+  mkdir -p "$HOME/.codex"
+  touch "$config"
+  if grep -Fq "$skill_path" "$config"; then
+    echo "codex config already registers $skill_path — skipping"
+    return
+  fi
+  cp "$config" "$config.bak.$(date +%Y%m%d%H%M%S)"
+  {
+    printf '\n[[skills.config]]\n'
+    printf 'path = "%s"\n' "$skill_path"
+    printf 'enabled = true\n'
+  } >> "$config"
+  echo "registered in $config (backup made next to it)"
+}
+
 case "$target" in
   claude) install_one "$CLAUDE_DIR" ;;
-  codex)  install_one "$CODEX_DIR" ;;
+  codex)
+    install_one "$CODEX_DIR"
+    register_codex_skill
+    ;;
   agents) install_one "$AGENTS_DIR" ;;
   all)
     install_one "$CLAUDE_DIR"
     install_one "$CODEX_DIR"
+    register_codex_skill
     install_one "$AGENTS_DIR"
     ;;
   *)
